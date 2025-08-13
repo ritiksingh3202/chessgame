@@ -17,3 +17,7 @@ export function createGame(p1: string, p2: string) {
 
   return games[id]
 }
+
+export function getGame(id: string) {
+  return games[id]
+}
