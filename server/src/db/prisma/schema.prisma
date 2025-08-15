@@ -16,4 +16,32 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relations
+  matchesAsWhite Match[] @relation("WhitePlayer")
+  matchesAsBlack Match[] @relation("BlackPlayer")
+}
+
+model Match {
+  id        String    @id @default(cuid())
+
+  status    String    @default("active") // active | completed | draw | abandoned
+  startTime DateTime  @default(now())
+  endTime   DateTime?
+
+  winner    String?   // "white" | "black" | null
+
+  // Foreign Keys
+  whitePlayerId String
+  blackPlayerId String
+
+  // Relations
+  whitePlayer User @relation("WhitePlayer", fields: [whitePlayerId], references: [id])
+  blackPlayer User @relation("BlackPlayer", fields: [blackPlayerId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([whitePlayerId])
+  @@index([blackPlayerId])
 }
