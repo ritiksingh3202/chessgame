@@ -39,9 +39,34 @@ model Match {
   whitePlayer User @relation("WhitePlayer", fields: [whitePlayerId], references: [id])
   blackPlayer User @relation("BlackPlayer", fields: [blackPlayerId], references: [id])
 
+  moves Move[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([whitePlayerId])
   @@index([blackPlayerId])
+}
+
+model Move {
+  id          String   @id @default(cuid())
+
+  matchId     String
+  moveNum     Int      // Move number (1-based)
+
+  from        String   // e.g. "e2"
+  to          String   // e.g. "e4"
+
+  piece       String   // pawn, knight, etc
+  promotion   String?
+
+  isCheck     Boolean  @default(false)
+  isCheckmate Boolean  @default(false)
+
+  timestamp   DateTime @default(now())
+
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@unique([matchId, moveNum])
+  @@index([matchId])
 }
