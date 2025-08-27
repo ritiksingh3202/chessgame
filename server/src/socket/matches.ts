@@ -41,3 +41,16 @@ export function createMatch(whiteSocketId: string, blackSocketId: string): Match
   socketToMatch.set(blackSocketId, { matchId: id, color: "black" });
   return match;
 }
+
+export function deleteMatch(matchId: string) {
+  matches.delete(matchId);
+}
+
+export function getSocketMatch(socketId: string) {
+  return socketToMatch.get(socketId);
+}
+
+export function clearSocketMatch(socketId: string) {
+  socketToMatch.delete(socketId);
+}
+
