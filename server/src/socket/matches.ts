@@ -24,3 +24,20 @@ export function getWaitingSocketId() {
 export function setWaitingSocketId(socketId: string | null) {
   waitingSocketId = socketId;
 }
+
+export function createMatch(whiteSocketId: string, blackSocketId: string): MatchState {
+  const id = crypto.randomUUID();
+  const chess = new Chess();
+
+  const match: MatchState = {
+    id,
+    chess,
+    players: { white: whiteSocketId, black: blackSocketId },
+    historySan: [],
+  };
+
+  matches.set(id, match);
+  socketToMatch.set(whiteSocketId, { matchId: id, color: "white" });
+  socketToMatch.set(blackSocketId, { matchId: id, color: "black" });
+  return match;
+}
