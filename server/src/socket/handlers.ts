@@ -15,3 +15,40 @@ function getStatus(match: ReturnType<typeof getMatch>) {
   if (chess.isDraw()) return "draw" as const;
   return "active" as const;
 }
+
+export function registerHandlers(
+  io: Server<ClientToServerEvents, ServerToClientEvents>,
+  socket: Socket<ClientToServerEvents, ServerToClientEvents>
+) {
+  socket.on("matchmaking:join", () => {
+    const waiting = getWaitingSocketId();
+
+    if (!waiting || waiting === socket.id) {
+      setWaitingSocketId(socket.id);
+      socket.emit("matchmaking:status", { status: "queued" });
+      return;
+    }
+
+    // pair waiting + current
+    const match = createMatch(waiting, socket.id);
+    setWaitingSocketId(null);
+
+    const whiteSocket = io.sockets.sockets.get(waiting);
+    const blackSocket = socket;
+
+    whiteSocket?.join(match.id);
+    blackSocket.join(match.id);
+
+    whiteSocket?.emit("match:started", { matchId: match.id, color: "white" });
+    blackSocket.emit("match:started", { matchId: match.id, color: "black" });
+
+    const fen = match.chess.fen();
+    io.to(match.id).emit("game:state", {
+      matchId: match.id,
+      fen,
+      turn: getTurnColor(fen),
+      historySan: match.historySan,
+      status: getStatus(match),
+    });
+  });
+}
