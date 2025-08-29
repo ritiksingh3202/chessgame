@@ -69,4 +69,43 @@ export function registerHandlers(
       status: getStatus(match),
     });
   });
+
+  socket.on("game:move", ({ matchId, from, to, promotion }) => {
+    const match = getMatch(matchId);
+    if (!match) {
+      socket.emit("error", { message: "Match not found." });
+      return;
+    }
+
+    const fenBefore = match.chess.fen();
+    const turn = getTurnColor(fenBefore);
+    const expectedSocketId = match.players[turn];
+
+    if (expectedSocketId && expectedSocketId !== socket.id) {
+      socket.emit("error", { message: "Not your turn." });
+      return;
+    }
+
+    const result = match.chess.move({
+      from,
+      to,
+      promotion: promotion as any,
+    });
+
+    if (!result) {
+      socket.emit("error", { message: "Illegal move." });
+      return;
+    }
+
+    match.historySan.push(result.san);
+
+    const fenAfter = match.chess.fen();
+    io.to(matchId).emit("game:state", {
+      matchId,
+      fen: fenAfter,
+      turn: getTurnColor(fenAfter),
+      historySan: match.historySan,
+      status: getStatus(match),
+    });
+  });
 }
