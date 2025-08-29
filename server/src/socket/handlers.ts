@@ -51,4 +51,22 @@ export function registerHandlers(
       status: getStatus(match),
     });
   });
+
+  socket.on("match:join", ({ matchId }) => {
+    const match = getMatch(matchId);
+    if (!match) {
+      socket.emit("error", { message: "Match not found." });
+      return;
+    }
+
+    socket.join(matchId);
+    const fen = match.chess.fen();
+    socket.emit("game:state", {
+      matchId,
+      fen,
+      turn: getTurnColor(fen),
+      historySan: match.historySan,
+      status: getStatus(match),
+    });
+  });
 }
