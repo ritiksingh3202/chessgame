@@ -108,4 +108,12 @@ export function registerHandlers(
       status: getStatus(match),
     });
   });
+
+  socket.on("disconnect", () => {
+    if (getWaitingSocketId() === socket.id) setWaitingSocketId(null);
+
+    // We keep match state for reconnect, but unlink this socket.
+    const meta = getSocketMatch(socket.id);
+    if (meta) clearSocketMatch(socket.id);
+  });
 }
