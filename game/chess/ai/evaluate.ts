@@ -1,0 +1,1 @@
+// position judgement for AI move evaluation

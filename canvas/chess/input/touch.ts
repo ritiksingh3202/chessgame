@@ -1,0 +1,1 @@
+// suggets possible moves when a piece is selected

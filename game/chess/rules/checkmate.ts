@@ -1,0 +1,1 @@
+//rules related to checkmate here

@@ -1,0 +1,1 @@
+// enables dragging of pieces on the chessboard

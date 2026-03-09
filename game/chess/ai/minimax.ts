@@ -1,0 +1,1 @@
+//can suggest best ai generated moves
