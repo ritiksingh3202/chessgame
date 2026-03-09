@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+
+  // Clerk identity link
+  clerkId   String   @unique
+
+  email     String   @unique
+  username  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  matchesAsWhite Match[] @relation("WhitePlayer")
+  matchesAsBlack Match[] @relation("BlackPlayer")
+}
+
+model Match {
+  id        String    @id @default(cuid())
+
+  status    String    @default("active") // active | completed | draw | abandoned
+  startTime DateTime  @default(now())
+  endTime   DateTime?
+
+  winner    String?   // "white" | "black" | null
+
+  // Foreign Keys
+  whitePlayerId String
+  blackPlayerId String
+
+  // Relations
+  whitePlayer User @relation("WhitePlayer", fields: [whitePlayerId], references: [id])
+  blackPlayer User @relation("BlackPlayer", fields: [blackPlayerId], references: [id])
+
+  moves Move[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([whitePlayerId])
+  @@index([blackPlayerId])
+}
+
+model Move {
+  id          String   @id @default(cuid())
+
+  matchId     String
+  moveNum     Int      // Move number (1-based)
+
+  from        String   // e.g. "e2"
+  to          String   // e.g. "e4"
+
+  piece       String   // pawn, knight, etc
+  promotion   String?
+
+  isCheck     Boolean  @default(false)
+  isCheckmate Boolean  @default(false)
+
+  timestamp   DateTime @default(now())
+
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@unique([matchId, moveNum])
+  @@index([matchId])
+}
