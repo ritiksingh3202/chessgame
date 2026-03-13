@@ -1,69 +1,39 @@
-// visual hints
-// Pieces drawing logic here
-
-import { Board } from "@/game/chess/board";
-import { PieceType, PieceColor } from "@/game/chess/piece";
 import { TILE_SIZE } from "../config";
 
-/**
- * Unicode chess symbols
- */
-const symbols = {
-  white: {
-    [PieceType.King]: "♔",
-    [PieceType.Queen]: "♕",
-    [PieceType.Rook]: "♖",
-    [PieceType.Bishop]: "♗",
-    [PieceType.Knight]: "♘",
-    [PieceType.Pawn]: "♙",
-  },
-
-  black: {
-    [PieceType.King]: "♚",
-    [PieceType.Queen]: "♛",
-    [PieceType.Rook]: "♜",
-    [PieceType.Bishop]: "♝",
-    [PieceType.Knight]: "♞",
-    [PieceType.Pawn]: "♟",
-  }
-};
-
-/**
- * Draw pieces on canvas
- */
-export function drawPieces(
+export function highlightSquare(
   ctx: CanvasRenderingContext2D,
-  board: Board
+  square: { row: number; col: number }
 ) {
 
-  ctx.font = `${TILE_SIZE * 0.8}px serif`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
+  ctx.fillStyle = "rgba(255,255,0,0.3)";
 
-  for (let row = 0; row < 8; row++) {
+  ctx.fillRect(
+    square.col * TILE_SIZE,
+    square.row * TILE_SIZE,
+    TILE_SIZE,
+    TILE_SIZE
+  );
+}
 
-    for (let col = 0; col < 8; col++) {
+export function highlightMoves(
+  ctx: CanvasRenderingContext2D,
+  moves: { row: number; col: number }[]
+) {
 
-      const piece = board[row][col];
+  ctx.fillStyle = "rgba(0,255,0,0.4)";
 
-      if (!piece) continue;
+  for (const move of moves) {
 
-      const symbol =
-        piece.color === PieceColor.White
-          ? symbols.white[piece.type]
-          : symbols.black[piece.type];
+    ctx.beginPath();
 
-      ctx.fillStyle =
-        piece.color === PieceColor.White
-          ? "#ffffff"
-          : "#000000";
+    ctx.arc(
+      move.col * TILE_SIZE + TILE_SIZE / 2,
+      move.row * TILE_SIZE + TILE_SIZE / 2,
+      TILE_SIZE * 0.2,
+      0,
+      Math.PI * 2
+    );
 
-      ctx.fillText(
-        symbol,
-        col * TILE_SIZE + TILE_SIZE / 2,
-        row * TILE_SIZE + TILE_SIZE / 2
-      );
-    }
-
+    ctx.fill();
   }
 }
